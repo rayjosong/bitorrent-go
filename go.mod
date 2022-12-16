@@ -1,4 +1,4 @@
-module github.com/bitorrent-client-go
+module github.com/rayjosong/bitorrent-client-go
 
 go 1.19
 
