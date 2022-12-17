@@ -8,10 +8,14 @@ import (
 	"os"
 
 	"github.com/jackpal/bencode-go"
+	"github.com/rayjosong/bitorrent-client-go/p2p"
 )
 
 const port uint16 = 6881
 
+// Structure of metainfo file
+// {‘info’: {‘piece length’: 131072, ‘length’: 38190848L, ‘name’: ‘Cory_Doctorow_Microsoft_Research_DRM_talk.mp3’, ‘pieces’: ‘\xcb\xfaz\r\x9b\xe1\x9a\xe1\x83\x91~\xed@\…..’, }
+// ‘announce’: ‘http://tracker.var.cc:6969/announce’, ‘creation date’: 1089749086L }
 type bencodeInfo struct {
 	Pieces      string `bencode:"pieces"`
 	PieceLength int    `bencode:"piece length"`
@@ -68,7 +72,7 @@ func (t *TorrentFile) DownloadToFile(path string) error {
 	return nil
 }
 
-// Open parses a torrent file
+// Open parses to TorrentFile, giving a struct of all necessary info
 func Open(path string) (TorrentFile, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -102,6 +106,9 @@ func (bto bencodeTorrent) toTorrentFile() (TorrentFile, error) {
 	}
 
 	// TODO: Explain why need to split
+
+	// Data is split into smaller pieces of fixed size
+	// Tracker keeps track on who has pieces of data
 	pieceHashes, err := bto.Info.splitPieceHashes()
 	if err != nil {
 		return TorrentFile{}, err
@@ -126,7 +133,7 @@ func (i *bencodeInfo) hash() ([20]byte, error) {
 		return [20]byte{}, err
 	}
 
-	h := sha1.Sum(buf.Bytes())
+	h := sha1.Sum(buf.Bytes()) // Returns the SHA-1 checksum, for data verification
 	return h, nil
 }
 

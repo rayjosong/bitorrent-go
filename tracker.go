@@ -11,8 +11,8 @@ import (
 )
 
 type bencodeTrackerResp struct {
-	Interval int    `bencode:"interval"`
-	Peers    string `bencode:"peers"`
+	Interval int    `bencode:"interval"` // how often to connect to refresh list of peers
+	Peers    string `bencode:"peers"`    // can be unmarshaled to Peer struct to get IP and ports
 }
 
 func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, error) {
